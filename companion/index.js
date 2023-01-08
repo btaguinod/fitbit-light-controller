@@ -31,3 +31,17 @@ import * as messaging from "messaging";
 messaging.peerSocket.addEventListener("message", (evt) => {
   console.error(JSON.stringify(evt.data));
 });
+
+import { settingsStorage } from "settings";
+
+// Event fires when a setting is changed
+settingsStorage.addEventListener("change", (evt) => {
+  // Which setting changed
+  console.log(`key: ${evt.key}`)
+
+  // What was the old value
+  console.log(`old value: ${evt.oldValue}`)
+
+  // What is the new value
+  console.log(`new value: ${evt.newValue}`)
+});

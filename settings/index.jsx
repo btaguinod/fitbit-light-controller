@@ -3,11 +3,15 @@ registerSettingsPage(({ settings }) => (
     <Section
       title={
         <Text bold align="center">
-          App Settings
+          Connection Settings
         </Text>
       }
     >
-      <Text>Hello world!</Text>
+      <TextInput
+        label="WIFI Lights IP"
+        settingsKey="ip"
+        placeholder="ex. 10.0.0.148"
+      />
     </Section>
   </Page>
 ));
