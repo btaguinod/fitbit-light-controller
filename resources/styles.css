@@ -10,3 +10,11 @@
   height: 100%;
   fill: white;
 }
+
+.application-fill           { fill: fb-yellow; }
+.foreground-fill            { fill: fb-white; }
+.background-fill            { fill: fb-black; }
+
+#activate-button #text {
+  text-buffer: "ACTIVATE";
+}

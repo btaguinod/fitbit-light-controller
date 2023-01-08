@@ -1,3 +1,10 @@
 <svg>
-  <rect id="background" />
+  <!-- <rect id="background" /> -->
+  <text id="pitch" x="50%" y="25%+15"
+      fill="white" font-size="32" font-family="System-Regular"
+      text-anchor="middle" text-length="20">Press activate</text>
+  <text id="roll" x="50%" y="50%+15"
+      fill="white" font-size="32" font-family="System-Regular"
+      text-anchor="middle" text-length="20">to start</text>
+  <use id="activate-button" href="#text-button" class="text-button bottom application-fill" />
 </svg>
