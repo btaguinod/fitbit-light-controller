@@ -13,7 +13,9 @@
     "appDisplayName": "Fitbit Light Controller",
     "iconFile": "resources/icon.png",
     "wipeColor": "#ffffff",
-    "requestedPermissions": ["access_internet"],
+    "requestedPermissions": [
+      "access_internet"
+    ],
     "buildTargets": [
       "atlas"
     ],

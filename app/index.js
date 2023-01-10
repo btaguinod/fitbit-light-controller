@@ -1,18 +1,11 @@
-console.log('app init');
 import { Accelerometer } from "accelerometer";
 import * as document from "document";
+import * as messaging from "messaging";
 
-let ACTIVE = false;
+let isActive = false;
 
-function sendMessage(data) {
-  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
-    // Send the data to peer as a message
-    messaging.peerSocket.send(data);
-  }
-}
 let accelerometer
 if (Accelerometer) {
-  console.log("This device has an Accelerometer!");
   accelerometer = new Accelerometer({ frequency: 10 });
   const pitch = document.getElementById("pitch");
   const roll = document.getElementById("roll");
@@ -32,16 +25,29 @@ if (Accelerometer) {
     let rollVal = Math.atan2(ay, sign*dist(ax*miu, az))*180/Math.PI;
     pitch.text = "pitch: " +  pitchVal.toString().slice(0, 5) + "deg";
     roll.text = "roll: " + rollVal.toString().slice(0, 5) + "deg";
-    sendMessage({
-      pitch: pitchVal, 
-      roll: rollVal
-    })
+    
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      // Send the data to peer as a message
+      messaging.peerSocket.send({
+        pitch: pitchVal, 
+        roll: rollVal
+      });
+    }
   });
 } else {
    console.log("This device does NOT have an Accelerometer!");
 }
 
-import * as messaging from "messaging";
+const connectedText = document.getElementById("connected");
+
+messaging.peerSocket.addEventListener("message", (evt) => {
+  const data = evt.data;
+  if (evt.data["connected"]) {
+    connectedText.text = "Connected";
+  } else {
+    connectedText.text = "Not Connected";
+  }
+});
 
 messaging.peerSocket.addEventListener("error", (err) => {
   console.error(`Connection error: ${err.code} - ${err.message}`);
@@ -50,10 +56,14 @@ messaging.peerSocket.addEventListener("error", (err) => {
 const myButton = document.getElementById("activate-button");
 
 myButton.addEventListener("click", (evt) => {
-  ACTIVE = !ACTIVE;
-  if (ACTIVE == false) {
+  isActive = !isActive;
+  if (isActive == false) {
     accelerometer.stop();
   } else {
     accelerometer.start();
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      // Send the data to peer as a message
+      messaging.peerSocket.send({"reset": true});
+    }
   }
 })
