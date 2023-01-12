@@ -21,7 +21,10 @@ function onOpen(evt) {
   websocket.send(message);
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     // Send the data to peer as a message
-    messaging.peerSocket.send({"connected": true});
+    messaging.peerSocket.send({
+      input: "connected",
+      connected: true
+    });
   }
 }
 
@@ -29,7 +32,10 @@ function onClose(evt) {
   console.log("DISCONNECTED");
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     // Send the data to peer as a message
-    messaging.peerSocket.send({"connected": false});
+    messaging.peerSocket.send({
+      input: "connected",
+      connected: false
+    });
   }
 }
 
@@ -42,36 +48,85 @@ function onError(evt) {
   console.error(`${wsUri} failed`);
 }
 
+// for controlling lights later
+const COLOR_MODES = {
+  PICK: "pick",
+  SCROLL: "scroll",
+};
+let hue = 0;
+let color_mode = COLOR_MODES.PICK;
+const LIGHTNESS_MODES = {
+  CONTROL: "control",
+  DISABLE: "disable",
+};
+let lightness_mode = LIGHTNESS_MODES.CONTROL;
+let lightness = 0.5;
+
 function calcHue(pitch, roll) {
-  return (roll + 180)/360
+  if (color_mode === COLOR_MODES.PICK) {
+    hue = (roll + 180)/360
+  } else {
+    hue += (roll/180) 
+  }
 }
 
 function calcLightness(pitch, roll) {
-  pitch += 20;
-  let lightness;
-  if (pitch >= 0) {
-    lightness = 0.4;
+  if (lightness_mode === LIGHTNESS_MODES.CONTROL) {
+    pitch += 20;
+    let lightness;
+    if (pitch >= 0) {
+      lightness = 0.5;
+    }
+    else {
+      lightness = 0.5 - 0.5*(-pitch)/60;
+      lightness = Math.max(0, lightness);
+    }
+  } else {
+    lightness = 0.5;
   }
-  else {
-    lightness = 0.4 - 0.4*(-pitch)/60;
-    lightness = Math.max(0, lightness);
-  }
-  return lightness;
 }
 
 messaging.peerSocket.addEventListener("message", (evt) => {
   const data = evt.data;
-  if (evt.data["reset"] === true) {
-    websocket.close();
-    openWebSocket();
-  } else {
-    const data = evt.data;
-    const hue = calcHue(data.pitch, data.roll);
-    const lightness = calcLightness(data.pitch, data.roll);
+  const inputType = data["input"];
+  if (inputType === "orientation") {
+    calcHue(data.pitch, data.roll);
+    calcLightness(data.pitch, data.roll);
     if (websocket.readyState === websocket.OPEN) {
       // Send the data to websocket
       websocket.send(hue + ':' + lightness);
     }
+  } else if (inputType === "reset") {
+    websocket.close();
+    openWebSocket();
+  } else if (inputType === "color-mode") {
+    if (color_mode === COLOR_MODES.PICK) {
+      color_mode = COLOR_MODES.SCROLL;
+    } else {
+      color_mode = COLOR_MODES.PICK;
+    }
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      // Send the data to peer as a message
+      messaging.peerSocket.send({
+        input: "color",
+        color: color_mode,
+      });
+    }
+  } else if (inputType === "lightness-mode") {
+    if (lightness_mode === LIGHTNESS_MODES.CONTROL) {
+      lightness_mode = LIGHTNESS_MODES.DISABLE;
+    } else {
+      lightness_mode = LIGHTNESS_MODES.CONTROL;
+    }
+    if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+      // Send the data to peer as a message
+      messaging.peerSocket.send({
+        input: "lightness",
+        lightness: lightness_mode,
+      });
+    }
+  } else {
+    throw new Error("Invalid watch to phone input type: " + inputType);
   }
 });
 
@@ -89,15 +144,3 @@ settingsStorage.addEventListener("change", (evt) => {
   console.log(`new value: ${evt.newValue}`)
 });
 
-// for controlling lights later
-// const COLOR_MODES = {
-//   PICK: "pick",
-//   SCROLL: "scroll",
-// };
-// let scrollColor = 0;
-// let color_mode = COLOR_MODES.SCROLL;
-// const BRIGHTNESS_MODES = {
-//   CONTROL: "control",
-//   DISABLE: "disable",
-// };
-// let brightness_mode = BRIGHTNESS_MODES.DISABLE;

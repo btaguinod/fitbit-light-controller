@@ -29,6 +29,7 @@ if (Accelerometer) {
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
       // Send the data to peer as a message
       messaging.peerSocket.send({
+        input: "orientation",
         pitch: pitchVal, 
         roll: rollVal
       });
@@ -38,24 +39,13 @@ if (Accelerometer) {
    console.log("This device does NOT have an Accelerometer!");
 }
 
-const connectedText = document.getElementById("connected");
-
-messaging.peerSocket.addEventListener("message", (evt) => {
-  const data = evt.data;
-  if (evt.data["connected"]) {
-    connectedText.text = "Connected";
-  } else {
-    connectedText.text = "Not Connected";
-  }
-});
-
 messaging.peerSocket.addEventListener("error", (err) => {
   console.error(`Connection error: ${err.code} - ${err.message}`);
 });
 
-const myButton = document.getElementById("activate-button");
+const activateButton = document.getElementById("activate-button");
 
-myButton.addEventListener("click", (evt) => {
+activateButton.addEventListener("click", (evt) => {
   isActive = !isActive;
   if (isActive == false) {
     accelerometer.stop();
@@ -63,7 +53,46 @@ myButton.addEventListener("click", (evt) => {
     accelerometer.start();
     if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
       // Send the data to peer as a message
-      messaging.peerSocket.send({"reset": true});
+      messaging.peerSocket.send({input: "reset"});
     }
   }
 })
+
+const colorModeButton = document.getElementById("color-mode-button");
+
+colorModeButton.addEventListener("click", (evt) => {
+  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    // Send the data to peer as a message
+    messaging.peerSocket.send({input: "color-mode"});
+  }
+})
+
+const lightnessModeButton = document.getElementById("lightness-mode-button");
+
+lightnessModeButton.addEventListener("click", (evt) => {
+  if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
+    // Send the data to peer as a message
+    messaging.peerSocket.send({input: "lightness-mode"});
+  }
+})
+
+const connectedText = document.getElementById("connected");
+
+messaging.peerSocket.addEventListener("message", (evt) => {
+  const data = evt.data;
+  const inputType = evt.data["input"];
+  console.log(inputType);
+  if (inputType === "connected") {
+    if (data["connected"] === true) {
+      connectedText.text = "Connected";
+    } else {
+      connectedText.text = "Not Connected";
+    }
+  } else if (inputType === "color") {
+    colorModeButton.text = "COLOR: " + data["color"].toUpperCase();
+  } else if (inputType === "lightness") {
+    lightnessModeButton.text = "LIGHTNESS: " + data["lightness"].toUpperCase();
+  } else {
+    throw new Error("Invalid phone to watch input type: " + inputType);
+  }
+});

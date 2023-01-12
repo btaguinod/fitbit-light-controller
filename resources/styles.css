@@ -11,10 +11,18 @@
   fill: white;
 }
 
-.application-fill           { fill: fb-yellow; }
+.application-fill           { fill: #00B0DA   ; }
 .foreground-fill            { fill: fb-white; }
 .background-fill            { fill: fb-black; }
 
 #activate-button #text {
   text-buffer: "ACTIVATE";
+}
+
+#color-mode-button #text {
+  text-buffer: "COLOR: PICK";
+}
+
+#lightness-mode-button #text {
+  text-buffer: "LIGHTNESS: CONTROL";
 }

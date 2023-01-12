@@ -1,13 +1,16 @@
 <svg>
   <!-- <rect id="background" /> -->
-  <text id="connected" x="50%" y="20%+15"
+  <text id="connected" x="50%" y="10%+15"
       fill="white" font-size="32" font-family="System-Regular"
       text-anchor="middle" text-length="20">Not Connected</text>
-  <text id="pitch" x="50%" y="40%+15"
+  <text id="pitch" x="50%" y="20%+15"
       fill="white" font-size="32" font-family="System-Regular"
-      text-anchor="middle" text-length="20">Press activate</text>
-  <text id="roll" x="50%" y="60%+15"
+      text-anchor="middle" text-length="20">Pitch: N/A</text>
+  <text id="roll" x="50%" y="30%+15"
       fill="white" font-size="32" font-family="System-Regular"
-      text-anchor="middle" text-length="20">to start</text>
+      text-anchor="middle" text-length="20">Roll: N/A</text>
   <use id="activate-button" href="#text-button" class="text-button bottom application-fill" />
+  <use id="color-mode-button" href="#textarea-button" class="text-button left primary application-fill" />
+  <use id="lightness-mode-button" href="#textarea-button" class="text-button right primary application-fill" />
+
 </svg>
