@@ -3,7 +3,7 @@ import * as messaging from "messaging";
 // URI="wss://ws.postman-echo.com/raw"
 // URI="ws://10.0.0.157/ws"
 // URI=:ws://10.0.0.200:5000/echo"
-let wsUri = "wss://ws.postman-echo.com/raw";
+let wsUri = "wss://10.0.0.200:5000/echo";
 let websocket;
 function openWebSocket() {
   websocket = new WebSocket(wsUri);
@@ -38,16 +38,25 @@ function onMessage(evt) {
 }
 
 function onError(evt) {
-  console.error(`ERROR: ${evt.data}`);
+  console.error(`ERROR: ${evt.data} `);
+  console.error(`${wsUri} failed`);
 }
 
-function tiltTolightData(pitch, roll) {
-  let hue = 0;
-  let brightness = 255;
+function calcHue(pitch, roll) {
+  return (roll + 180)/360
+}
 
-  hue = Math.round((roll + 180)/360*255)
-  
-  return {hue, brightness};
+function calcLightness(pitch, roll) {
+  pitch += 20;
+  let lightness;
+  if (pitch >= 0) {
+    lightness = 0.4;
+  }
+  else {
+    lightness = 0.4 - 0.4*(-pitch)/60;
+    lightness = Math.max(0, lightness);
+  }
+  return lightness;
 }
 
 messaging.peerSocket.addEventListener("message", (evt) => {
@@ -57,11 +66,11 @@ messaging.peerSocket.addEventListener("message", (evt) => {
     openWebSocket();
   } else {
     const data = evt.data;
-    const lightData = tiltTolightData(data.pitch, data.roll);
-    console.log(JSON.stringify(lightData));
+    const hue = calcHue(data.pitch, data.roll);
+    const lightness = calcLightness(data.pitch, data.roll);
     if (websocket.readyState === websocket.OPEN) {
       // Send the data to websocket
-      websocket.send(JSON.stringify(lightData))
+      websocket.send(hue + ':' + lightness);
     }
   }
 });

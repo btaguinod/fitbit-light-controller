@@ -25,5 +25,8 @@
   "scripts": {
     "build": "fitbit-build",
     "debug": "fitbit"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3"
   }
 }
