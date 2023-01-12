@@ -81,7 +81,6 @@ const connectedText = document.getElementById("connected");
 messaging.peerSocket.addEventListener("message", (evt) => {
   const data = evt.data;
   const inputType = evt.data["input"];
-  console.log(inputType);
   if (inputType === "connected") {
     if (data["connected"] === true) {
       connectedText.text = "Connected";

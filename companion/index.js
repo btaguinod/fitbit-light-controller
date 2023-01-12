@@ -66,14 +66,18 @@ function calcHue(pitch, roll) {
   if (color_mode === COLOR_MODES.PICK) {
     hue = (roll + 180)/360
   } else {
-    hue += (roll/180) 
+    hue += (roll/180)
+    if (hue < 0) {
+      hue = 1;
+    } else if (hue > 1) {
+      hue = 0;
+    }
   }
 }
 
 function calcLightness(pitch, roll) {
   if (lightness_mode === LIGHTNESS_MODES.CONTROL) {
     pitch += 20;
-    let lightness;
     if (pitch >= 0) {
       lightness = 0.5;
     }
